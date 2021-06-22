@@ -13,7 +13,6 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
-
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -45,8 +44,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String(500))
     shows = db.relationship('Show', backref='venue')
 
-    def __repr__(self):
-        return f'<Venue {self.id} {self.name}>'
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 class Artist(db.Model):
     __tablename__ = 'Artist'
@@ -64,9 +62,10 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(500))
     shows = db.relationship('Show', backref='artist')
 
-    def __repr__(self):
-        return f'<Artist {self.id} {self.name}>'
 
+    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+
+# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 class Show(db.Model):
     __tablename__ = 'Show'
 
@@ -74,9 +73,6 @@ class Show(db.Model):
     artist_id = db.Column(db.Integer,db.ForeignKey('Artist.id'),nullable=False)
     venue_id = db.Column(db.Integer,db.ForeignKey('Venue.id'),nullable=False)
     start_time = db.Column(db.DateTime(), nullable=False)
-
-    def __repr__(self):
-      return f'<Show {self.id} {self.start_time} artist_id={self.artist_id} venue_id={self.venue_id}>'
 
 
 
@@ -114,14 +110,7 @@ def venues():
     city_venues = Venue.query.filter(Venue.city == city.city,Venue.state == city.state).all()
     venue_data =[]
     for venue in city_venues:
-      temp = {
-        'id':venue.id,
-        'name':venue.name,
-        'num_upcoming_shows': len(db.session.query(Show).filter(Show.venue_id == venue.id,Show.start_time >= datetime.now()).all())
-        }
-      venue_data.append(temp)
-    data.append({'city':city.city, 'state':city.state, 'venues':venue_data})    
-
+    
   return render_template('pages/venues.html', areas=data);
 
 @app.route('/venues/search', methods=['POST'])
@@ -433,25 +422,45 @@ def create_artist_submission():
 
 @app.route('/shows')
 def shows():
-  data=[]
-  showss = db.session.query(
-    Show.venue_id,
-    Venue.name,
-    Show.artist_id,
-    Artist.name,
-    Artist.image_link,
-    Show.start_time).filter(Venue.id==Show.venue_id,Artist.id==Show.artist_id)
-  
-  for show in showss:
-    data.append({
-      "venue_id": show[0],
-      "venue_name": show[1],
-      "artist_id": show[2],
-      "artist_name": show[3],
-      "artist_image_link": show[4],
-      "start_time": str(show[5])
-    })
-        
+  # displays list of shows at /shows
+  # TODO: replace with real venues data.
+  #       num_shows should be aggregated based on number of upcoming shows per venue.
+  data=[{
+    "venue_id": 1,
+    "venue_name": "The Musical Hop",
+    "artist_id": 1,
+    "artist_name": "Guns N Petals",
+    "artist_image_link": "https://images.unsplash.com/photo-1549213783-8284d0336c4f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=300&q=80",
+    "start_time": "2019-05-21T21:30:00.000Z"
+  }, {
+    "venue_id": 3,
+    "venue_name": "Park Square Live Music & Coffee",
+    "artist_id": 2,
+    "artist_name": "Matt Quevedo",
+    "artist_image_link": "https://images.unsplash.com/photo-1495223153807-b916f75de8c5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=334&q=80",
+    "start_time": "2019-06-15T23:00:00.000Z"
+  }, {
+    "venue_id": 3,
+    "venue_name": "Park Square Live Music & Coffee",
+    "artist_id": 3,
+    "artist_name": "The Wild Sax Band",
+    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
+    "start_time": "2035-04-01T20:00:00.000Z"
+  }, {
+    "venue_id": 3,
+    "venue_name": "Park Square Live Music & Coffee",
+    "artist_id": 3,
+    "artist_name": "The Wild Sax Band",
+    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
+    "start_time": "2035-04-08T20:00:00.000Z"
+  }, {
+    "venue_id": 3,
+    "venue_name": "Park Square Live Music & Coffee",
+    "artist_id": 3,
+    "artist_name": "The Wild Sax Band",
+    "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
+    "start_time": "2035-04-15T20:00:00.000Z"
+  }]
   return render_template('pages/shows.html', shows=data)
 
 @app.route('/shows/create')
